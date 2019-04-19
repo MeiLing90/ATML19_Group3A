@@ -8,7 +8,6 @@ Jiyoung Lee
 Mei Ling Wong
 ```
 ## Gesture Recognition: American Sign Language Detection
-```
 Description: In our project, we aim to correctly detect and recogznie 
 hand gesture for american sign language. We will first try to implement 
 the solution according to the paper found on ieeeExplorer "Alphabet 
@@ -23,5 +22,3 @@ Dataset: https://www.kaggle.com/grassknoted/asl-alphabet
 
 Paper: Alphabet Sign Language Image Classification Using Deep Learning 
 (https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8650241)
-
-```
