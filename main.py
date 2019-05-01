@@ -62,6 +62,9 @@ validation_labels = labels[train_size:]
 train_dataset = SignDataset(train_images, train_labels)
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
+val_dataset = SignDataset(validation_images, validation_labels)
+val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+
 test_images, test_labels = load_images('data/full/test')
 test_dataset = SignDataset(test_images, test_labels)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
@@ -228,11 +231,6 @@ class DenseNet(nn.Module):
 
 
 #%% Task 4
-train_dataloader = []
-val_dataloader = []
-test_dataloader = []
-
-
 def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
     train_losses, train_accuracies = [], []
     val_losses, val_accuracies = [], []
