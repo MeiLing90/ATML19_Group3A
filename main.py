@@ -1,15 +1,30 @@
-#%% Testing out plots generation
+#%% Task 1: Loading data
 import matplotlib.pyplot as plt
 import numpy as np
-for i in range(100):
-    b = np.array([[i*1, 255, 233], [1, i*2, 233], [1, 255, i*3]])
-    plt.imshow(b)
-    plt.show()
+from PIL import Image
+import os
+import torch as torch
 
-#%% Testing out something else
-x = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-y = np.array([9, 1, 2, 1, 2, 1, 7, 8, 9])
-plt.plot(x, y)
+def loadImages(train_dir = 'data/full/train', limit = 1000, target_size = [32,32]):
+    class_folders = os.listdir(train_dir)
+    train_images = []
+    train_labels = []
+    for folder in class_folders:
+        path_folder = os.path.join(train_dir,folder)
+        if os.path.isdir(path_folder):
+            files = os.listdir(path_folder)
+            number_of_files = min(int(limit / len(class_folders)), len(files))
+            for i in range(number_of_files):
+                path = os.path.join(path_folder, files[i])
+                img = Image.open(path)
+                img = img.convert('RGB')  # some images are in grayscale
+                img = img.resize(target_size)
+                train_images.append(np.array(img))
+                train_labels.append(folder)
+    return train_images, train_labels
+
+train_images, train_labels = loadImages()
+plt.imshow(train_images[1])
 plt.show()
 
 #%% Task 3: Apply the model (implement train and test method)
