@@ -14,9 +14,10 @@ plt.show()
 
 #%% Task 3: Apply the model (implement train and test method)
 import torch
+import torch.nn
 import matplotlib.pyplot as plt
 
-device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def train(model, train_loader, optimizer, loss_fn):
@@ -63,4 +64,4 @@ def plot(train_losses, val_losses, epoch_n):
     plt.legend(['train_loss', 'val_loss'])
     plt.xlabel('epoch')
     plt.ylabel('loss value')
-    plt.title('Train/Val loss');
+    plt.title('Train/Val loss')
