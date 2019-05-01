@@ -3,9 +3,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 import os
-import torch as torch
+from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
+from torchvision.transforms import ToTensor, Compose
+import random
 
-def loadImages(train_dir = 'data/full/train', limit = 1000, target_size = [32,32]):
+
+class SignDataset(Dataset):
+    def __init__(self, data, target):
+        self.data = data
+        self.target = target
+
+    def __getitem__(self, index):
+        # Anything could go here, e.g. image loading from file or a different structure
+        datapoint = self.data[index]
+        target = self.target[index]
+        transform = Compose([ToTensor()])
+        return transform(datapoint), torch.tensor(target)
+
+    def __len__(self):
+        return len(self.data)
+
+
+def load_images(train_dir = 'data/full/train', limit = 1000, target_size = [32,32]):
     class_folders = os.listdir(train_dir)
     train_images = []
     train_labels = []
@@ -15,17 +35,36 @@ def loadImages(train_dir = 'data/full/train', limit = 1000, target_size = [32,32
             files = os.listdir(path_folder)
             number_of_files = min(int(limit / len(class_folders)), len(files))
             for i in range(number_of_files):
-                path = os.path.join(path_folder, files[i])
-                img = Image.open(path)
-                img = img.convert('RGB')  # some images are in grayscale
-                img = img.resize(target_size)
-                train_images.append(np.array(img))
-                train_labels.append(folder)
+                if not files[i].startswith('.'):
+                    path = os.path.join(path_folder, files[i])
+                    img = Image.open(path)
+                    img = img.convert('RGB')  # some images are in grayscale
+                    img = img.resize(target_size)
+                    train_images.append(np.array(img))
+                    train_labels.append(folder)
     return train_images, train_labels
 
-train_images, train_labels = loadImages()
-plt.imshow(train_images[1])
-plt.show()
+
+images, labels = load_images()
+
+batch_size = 32
+train_size = int(len(images)*0.9)
+
+random.Random(1).shuffle(images)
+random.Random(1).shuffle(labels)
+
+train_images = images[:train_size]
+train_labels = labels[:train_size]
+
+validation_images = images[train_size:]
+validation_labels = labels[train_size:]
+
+train_dataset = SignDataset(train_images, train_labels)
+train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+test_images, test_labels = load_images('data/full/test')
+test_dataset = SignDataset(test_images, test_labels)
+test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 #%% Task 3: Apply the model (implement train and test method)
 import torch
