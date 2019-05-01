@@ -72,10 +72,10 @@ def test(model, test_loader, loss_fn):
     return average_loss, accuracy
 
 
-def plot(train_losses, val_losses, epoch_n):
+def plot_loss(train_losses, val_losses, n_epochs):
     plt.figure()
-    plt.plot(np.arange(epoch_n), train_losses)
-    plt.plot(np.arange(epoch_n), val_losses)
+    plt.plot(np.arange(n_epochs), train_losses)
+    plt.plot(np.arange(n_epochs), val_losses)
     plt.legend(['train_loss', 'val_loss'])
     plt.xlabel('epoch')
     plt.ylabel('loss value')
@@ -187,3 +187,44 @@ class DenseNet(nn.Module):
         out = self.classifier(out)
         return out
 
+
+#%% Task 4
+train_dataloader = []
+val_dataloader = []
+test_dataloader = []
+
+
+def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
+    train_losses, train_accuracies = [], []
+    val_losses, val_accuracies = [], []
+
+    for epoch in range(n_epochs):
+        train_loss, train_accuracy = train(model, train_dataloader, optimizer, loss_fn)
+        val_loss, val_accuracy = test(model, val_dataloader, loss_fn)
+        train_losses.append(train_loss)
+        train_accuracies.append(train_accuracy)
+        val_losses.append(val_loss)
+        val_accuracies.append(val_accuracy)
+        print('Epoch {}/{}: train_loss: {:.4f}, train_accuracy: {:.4f}, val_loss: {:.4f}, val_accuracy: {:.4f}'.format(
+            epoch + 1, n_epochs,
+            train_loss,
+            train_accuracy,
+            val_loss,
+            val_accuracy))
+
+    return train_losses, train_accuracies, val_losses, val_accuracies
+
+
+model_dense = DenseNet()
+learning_rate = 0.001
+optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=(0.9, 0.999), eps=1e-8, weigth_decay=0)
+n_epochs = 300
+loss_fn = nn.CrossEntropyLoss()
+
+train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
+
+plot_loss(train_losses_result, val_losses_result)
+
+loss_fn = nn.CrossEntropyLoss()
+test_loss_result, test_accuracy_result = test(model_dense, test_dataloader, loss_fn)
+print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
