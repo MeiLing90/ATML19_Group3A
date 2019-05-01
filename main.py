@@ -54,7 +54,7 @@ def train(model, train_loader, optimizer, loss_fn):
     return np.mean(np.array(losses)), accuracy
 
 
-def test(model, test_loader, loss_fn):
+def eval(model, test_loader, loss_fn):
     model.eval()
     test_loss = 0
     n_correct = 0
@@ -200,7 +200,7 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
 
     for epoch in range(n_epochs):
         train_loss, train_accuracy = train(model, train_dataloader, optimizer, loss_fn)
-        val_loss, val_accuracy = test(model, val_dataloader, loss_fn)
+        val_loss, val_accuracy = eval(model, val_dataloader, loss_fn)
         train_losses.append(train_loss)
         train_accuracies.append(train_accuracy)
         val_losses.append(val_loss)
@@ -226,5 +226,5 @@ train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_
 plot_loss(train_losses_result, val_losses_result)
 
 loss_fn = nn.CrossEntropyLoss()
-test_loss_result, test_accuracy_result = test(model_dense, test_dataloader, loss_fn)
+test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
 print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
