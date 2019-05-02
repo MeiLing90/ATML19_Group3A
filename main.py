@@ -141,7 +141,7 @@ def plot_loss(train_losses, val_losses, n_epochs):
 
 
 #%% Task 3
-import torchvision.models.densenet as DenseNet
+from torchvision.models.densenet import DenseNet
 import torch.nn as nn
 
 def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
@@ -166,8 +166,9 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
 
 
 model_dense = DenseNet(num_classes=24)
+model_dense = model_dense.to(device)
 learning_rate = 0.001
-optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=(0.9, 0.999), eps=1e-8, weigth_decay=0)
+optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=(0.9, 0.999), eps=1e-8)
 n_epochs = 10
 loss_fn = nn.CrossEntropyLoss()
 
