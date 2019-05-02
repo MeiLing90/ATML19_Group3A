@@ -165,7 +165,7 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
     return train_losses, train_accuracies, val_losses, val_accuracies
 
 
-model_dense = DenseNet()
+model_dense = DenseNet(num_classes=24)
 learning_rate = 0.001
 optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=(0.9, 0.999), eps=1e-8, weigth_decay=0)
 n_epochs = 10
