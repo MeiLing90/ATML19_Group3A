@@ -25,7 +25,7 @@ class SignDataset(Dataset):
         return len(self.data)
 
 
-def load_images(train_dir = 'data/full/train', limit = 1000, target_size = [32,32]):
+def load_images(train_dir='data/train', limit=1000, target_size=[32,32]):
     class_folders = os.listdir(train_dir)
     train_images = []
     train_labels = []
@@ -65,7 +65,7 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True
 val_dataset = SignDataset(validation_images, validation_labels)
 val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 
-test_images, test_labels = load_images('data/full/test')
+test_images, test_labels = load_images('data/test')
 test_dataset = SignDataset(test_images, test_labels)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
