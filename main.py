@@ -27,16 +27,13 @@ class SignDataset(Dataset):
         return len(self.data)
 
 
-def one_hot_encoder(labels):
+def integer_encoder(labels):
     values = np.array(labels)
     # integer encode
     label_encoder = LabelEncoder()
     integer_encoded = label_encoder.fit_transform(values)
-    # binary encode
-    onehot_encoder = OneHotEncoder(sparse=False)
-    integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
-    onehot_encoded = onehot_encoder.fit_transform(integer_encoded)
-    return onehot_encoded
+
+    return integer_encoded
 
 
 def load_images(train_dir='data/train', limit=100, target_size=[32,32]):
@@ -60,7 +57,7 @@ def load_images(train_dir='data/train', limit=100, target_size=[32,32]):
 
 
 images, char_labels = load_images()
-labels = one_hot_encoder(char_labels)
+labels = integer_encoder(char_labels)
 
 batch_size = 32
 train_size = int(len(images)*0.9)
@@ -81,7 +78,7 @@ val_dataset = SignDataset(validation_images, validation_labels)
 val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 
 test_images, test_char_labels = load_images('data/test')
-test_labels = one_hot_encoder(test_char_labels)
+test_labels = integer_encoder(test_char_labels)
 test_dataset = SignDataset(test_images, test_labels)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
@@ -174,8 +171,8 @@ loss_fn = nn.CrossEntropyLoss()
 
 train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
 
-plot_loss(train_losses_result, val_losses_result)
+plot_loss(train_losses_result, val_losses_result, n_epochs)
 
 loss_fn = nn.CrossEntropyLoss()
-test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
-print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
+#test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
+#print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
