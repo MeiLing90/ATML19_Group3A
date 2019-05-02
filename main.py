@@ -135,6 +135,7 @@ def plot_loss(train_losses, val_losses, n_epochs):
     plt.xlabel('epoch')
     plt.ylabel('loss value')
     plt.title('Train/Val loss')
+    plt.show()
 
 
 #%% Task 3
