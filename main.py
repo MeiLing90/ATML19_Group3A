@@ -44,7 +44,7 @@ def load_images(train_dir='data/train', limit=100, target_size=[32,32]):
         path_folder = os.path.join(train_dir,folder)
         if os.path.isdir(path_folder):
             files = os.listdir(path_folder)
-            number_of_files = min(int(limit / len(class_folders)), len(files))
+            number_of_files = len(files)
             for i in range(number_of_files):
                 if not files[i].startswith('.'):
                     path = os.path.join(path_folder, files[i])
@@ -167,13 +167,16 @@ model_dense = DenseNet(num_classes=24)
 model_dense = model_dense.to(device)
 learning_rate = 0.001
 optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=(0.9, 0.999), eps=1e-8)
-n_epochs = 10
+n_epochs = 300
 loss_fn = nn.CrossEntropyLoss()
 
 train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
 
-plot_loss(train_losses_result, val_losses_result, n_epochs)
+#plot_loss(train_losses_result, val_losses_result, n_epochs)
+
+torch.save(model_dense.state_dict(),"model_full.pt")
 
 loss_fn = nn.CrossEntropyLoss()
-#test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
-#print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
+
+test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
+print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
