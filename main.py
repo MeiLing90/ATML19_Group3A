@@ -9,6 +9,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from torchvision.transforms import ToTensor, Compose
 import random
+import copy
 
 
 class SignDataset(Dataset):
@@ -146,6 +147,11 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
     train_losses, train_accuracies = [], []
     val_losses, val_accuracies = [], []
 
+    best_val_loss = np.inf
+    best_model = None
+    patience = 5
+    counter = 0
+
     for epoch in range(n_epochs):
         train_loss, train_accuracy = train(model, train_dataloader, optimizer, loss_fn)
         val_loss, val_accuracy = eval(model, val_dataloader, loss_fn)
@@ -159,6 +165,16 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
             train_accuracy,
             val_loss,
             val_accuracy))
+
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            best_model = copy.deepcopy(model)
+            counter = 0
+        else:
+            counter += 1
+        if counter == patience:
+            print('No improvement for {} epochs; training stopped.'.format(patience))
+            break
 
     return train_losses, train_accuracies, val_losses, val_accuracies
 
