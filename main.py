@@ -7,7 +7,7 @@ from PIL import Image
 import os
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from torchvision.transforms import ToTensor, Compose
+from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizontalFlip, ColorJitter, ToPILImage
 import random
 import copy
 
@@ -20,8 +20,12 @@ class SignDataset(Dataset):
     def __getitem__(self, index):
         # Anything could go here, e.g. image loading from file or a different structure
         datapoint = self.data[index]
+        datapoint = Image.fromarray(datapoint)
         target = self.target[index]
-        transform = Compose([ToTensor()])
+        transform = Compose([RandomHorizontalFlip(),
+                             ColorJitter(brightness=0.5, contrast=0.5),
+                             RandomCrop(32,32),
+                             ToTensor()])
         return transform(datapoint), torch.tensor(target)
 
     def __len__(self):
