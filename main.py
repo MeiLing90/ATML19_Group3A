@@ -194,7 +194,7 @@ train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_
 
 #plot_loss(train_losses_result, val_losses_result, n_epochs)
 
-torch.save(model_dense.state_dict(),"model_full.pt")
+#torch.save(model_dense.state_dict(),"model_full.pt")
 
 loss_fn = nn.CrossEntropyLoss()
 
