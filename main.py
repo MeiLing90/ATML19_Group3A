@@ -7,8 +7,9 @@ from PIL import Image
 import os
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from torchvision.transforms import ToTensor, Compose
+from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizontalFlip, ColorJitter, ToPILImage
 import random
+import copy
 
 
 class SignDataset(Dataset):
@@ -19,9 +20,13 @@ class SignDataset(Dataset):
     def __getitem__(self, index):
         # Anything could go here, e.g. image loading from file or a different structure
         datapoint = self.data[index]
+        datapoint = Image.fromarray(datapoint)
         target = self.target[index]
-        transform = Compose([ToTensor()])
-        return transform(datapoint), torch.tensor(int(target))
+        transform = Compose([RandomHorizontalFlip(),
+                             ColorJitter(brightness=0.5, contrast=0.5),
+                             RandomCrop(32,32),
+                             ToTensor()])
+        return transform(datapoint), torch.tensor(target)
 
     def __len__(self):
         return len(self.data)
@@ -146,6 +151,11 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
     train_losses, train_accuracies = [], []
     val_losses, val_accuracies = [], []
 
+    best_val_loss = np.inf
+    best_model = None
+    patience = 5
+    counter = 0
+
     for epoch in range(n_epochs):
         train_loss, train_accuracy = train(model, train_dataloader, optimizer, loss_fn)
         val_loss, val_accuracy = eval(model, val_dataloader, loss_fn)
@@ -160,7 +170,17 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
             val_loss,
             val_accuracy))
 
-    return train_losses, train_accuracies, val_losses, val_accuracies
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            best_model = copy.deepcopy(model)
+            counter = 0
+        else:
+            counter += 1
+        if counter == patience:
+            print('No improvement for {} epochs; training stopped.'.format(patience))
+            break
+
+    return train_losses, train_accuracies, val_losses, val_accuracies, best_model
 
 
 model_dense = DenseNet(num_classes=24)
@@ -170,11 +190,13 @@ optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=
 n_epochs = 300
 loss_fn = nn.CrossEntropyLoss()
 
-train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
+train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result, best_model = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
 
-torch.save(model_dense.state_dict(),"model_full.pt") 
-# plot_loss(train_losses_result, val_losses_result, n_epochs)
+#plot_loss(train_losses_result, val_losses_result, n_epochs)
+
+torch.save(model_dense.state_dict(),"model_full.pt")
 
 loss_fn = nn.CrossEntropyLoss()
-test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
+
+test_loss_result, test_accuracy_result = eval(best_model, test_dataloader, loss_fn)
 print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
