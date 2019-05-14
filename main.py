@@ -48,7 +48,7 @@ def integer_encoder(labels):
     return integer_encoded
 
 
-def load_images(train_dir=data_folder+'train', limit=100, target_size=[32,32]):
+def load_images(train_dir=data_folder+'train', limit=1000, target_size=[32,32]):
     class_folders = os.listdir(train_dir)
     train_images = []
     train_labels = []
@@ -185,7 +185,11 @@ model_dense = DenseNet(num_classes=24)
 model_dense = model_dense.to(device)
 learning_rate = 0.001
 optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=(0.9, 0.999), eps=1e-8)
-n_epochs = 300
+if live_env:
+    n_epochs = 300
+else:
+    n_epochs = 10
+
 loss_fn = nn.CrossEntropyLoss()
 
 train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result, best_model = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
