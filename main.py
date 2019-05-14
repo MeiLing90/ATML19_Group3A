@@ -141,18 +141,6 @@ def eval(model, test_loader, loss_fn):
     accuracy = 100.0 * n_correct / len(test_loader.dataset)
     return average_loss, accuracy
 
-
-def plot_loss(train_losses, val_losses, n_epochs):
-    plt.figure()
-    plt.plot(np.arange(n_epochs), train_losses)
-    plt.plot(np.arange(n_epochs), val_losses)
-    plt.legend(['train_loss', 'val_loss'])
-    plt.xlabel('epoch')
-    plt.ylabel('loss value')
-    plt.title('Train/Val loss')
-    plt.show()
-
-
 #%% Task 3
 from densenet import DenseNet
 import torch.nn as nn
