@@ -1,5 +1,5 @@
 #%% Task 1: Loading data
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 import numpy as np
@@ -21,7 +21,7 @@ class SignDataset(Dataset):
         datapoint = self.data[index]
         target = self.target[index]
         transform = Compose([ToTensor()])
-        return transform(datapoint), torch.tensor(target)
+        return transform(datapoint), torch.tensor(int(target))
 
     def __len__(self):
         return len(self.data)
@@ -36,7 +36,7 @@ def integer_encoder(labels):
     return integer_encoded
 
 
-def load_images(train_dir='data/train', limit=100, target_size=[32,32]):
+def load_images(train_dir='/var/tmp/jiyoung/data/train', limit=100, target_size=[32,32]):
     class_folders = os.listdir(train_dir)
     train_images = []
     train_labels = []
@@ -44,7 +44,7 @@ def load_images(train_dir='data/train', limit=100, target_size=[32,32]):
         path_folder = os.path.join(train_dir,folder)
         if os.path.isdir(path_folder):
             files = os.listdir(path_folder)
-            number_of_files = min(int(limit / len(class_folders)), len(files))
+            number_of_files = len(files)
             for i in range(number_of_files):
                 if not files[i].startswith('.'):
                     path = os.path.join(path_folder, files[i])
@@ -77,7 +77,7 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True
 val_dataset = SignDataset(validation_images, validation_labels)
 val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 
-test_images, test_char_labels = load_images('data/test')
+test_images, test_char_labels = load_images('/var/tmp/jiyoung/data/test')
 test_labels = integer_encoder(test_char_labels)
 test_dataset = SignDataset(test_images, test_labels)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
@@ -85,7 +85,7 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 #%% Task 2: Apply the model (implement train and test method)
 import torch
 import torch.nn
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -139,7 +139,7 @@ def plot_loss(train_losses, val_losses, n_epochs):
 
 
 #%% Task 3
-from torchvision.models.densenet import DenseNet
+from densenet import DenseNet
 import torch.nn as nn
 
 def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
@@ -167,13 +167,14 @@ model_dense = DenseNet(num_classes=24)
 model_dense = model_dense.to(device)
 learning_rate = 0.001
 optimizer = torch.optim.Adam(model_dense.parameters(), lr=learning_rate,  betas=(0.9, 0.999), eps=1e-8)
-n_epochs = 10
+n_epochs = 300
 loss_fn = nn.CrossEntropyLoss()
 
 train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
 
-plot_loss(train_losses_result, val_losses_result, n_epochs)
+torch.save(model_dense.state_dict(),"model_full.pt") 
+# plot_loss(train_losses_result, val_losses_result, n_epochs)
 
 loss_fn = nn.CrossEntropyLoss()
-#test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
-#print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
+test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
+print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
