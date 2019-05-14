@@ -11,6 +11,13 @@ from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizont
 import random
 import copy
 
+if os.path.exists('/var/tmp/jiyoung/data/'):
+    live_env = True
+    data_folder = '/var/tmp/jiyoung/data/'
+else:
+    live_env = False
+    data_folder = 'data/'
+
 
 class SignDataset(Dataset):
     def __init__(self, data, target):
@@ -41,15 +48,18 @@ def integer_encoder(labels):
     return integer_encoded
 
 
-def load_images(train_dir='/var/tmp/jiyoung/data/train', limit=100, target_size=[32,32]):
+def load_images(train_dir=data_folder+'train', limit=100, target_size=[32,32]):
     class_folders = os.listdir(train_dir)
     train_images = []
     train_labels = []
     for folder in class_folders:
-        path_folder = os.path.join(train_dir,folder)
+        path_folder = os.path.join(train_dir, folder)
         if os.path.isdir(path_folder):
             files = os.listdir(path_folder)
-            number_of_files = len(files)
+            if live_env:
+                number_of_files = len(files)
+            else:
+                number_of_files = min(int(limit / len(class_folders)), len(files))
             for i in range(number_of_files):
                 if not files[i].startswith('.'):
                     path = os.path.join(path_folder, files[i])
@@ -82,7 +92,7 @@ train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True
 val_dataset = SignDataset(validation_images, validation_labels)
 val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 
-test_images, test_char_labels = load_images('/var/tmp/jiyoung/data/test')
+test_images, test_char_labels = load_images(data_folder+'test')
 test_labels = integer_encoder(test_char_labels)
 test_dataset = SignDataset(test_images, test_labels)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
