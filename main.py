@@ -178,7 +178,7 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
         #     print('No improvement for {} epochs; training stopped.'.format(patience))
         #     break
 
-    return train_losses, train_accuracies, val_losses, val_accuracies, best_model
+    return train_losses, train_accuracies, val_losses, val_accuracies
 
 
 model_dense = DenseNet(num_classes=24)
@@ -192,7 +192,7 @@ else:
 
 loss_fn = nn.CrossEntropyLoss()
 
-train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result, best_model = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
+train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_result = fit(model_dense, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader)
 
 #plot_loss(train_losses_result, val_losses_result, n_epochs)
 
@@ -200,5 +200,5 @@ train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_
 
 loss_fn = nn.CrossEntropyLoss()
 
-test_loss_result, test_accuracy_result = eval(best_model, test_dataloader, loss_fn)
+test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
 print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
