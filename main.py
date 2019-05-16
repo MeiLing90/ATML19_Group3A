@@ -20,19 +20,23 @@ else:
 
 
 class SignDataset(Dataset):
-    def __init__(self, data, target):
+    def __init__(self, data, target, transform=False):
         self.data = data
         self.target = target
+        self.transform = transform
 
     def __getitem__(self, index):
         # Anything could go here, e.g. image loading from file or a different structure
         datapoint = self.data[index]
         datapoint = Image.fromarray(datapoint)
         target = self.target[index]
-        transform = Compose([RandomHorizontalFlip(),
-                             ColorJitter(brightness=0.5, contrast=0.5),
-                             RandomCrop(32,32),
-                             ToTensor()])
+        if self.transform:
+            transform = Compose([RandomHorizontalFlip(),
+                                 ColorJitter(brightness=0.5, contrast=0.5),
+                                 RandomCrop(32,32),
+                                 ToTensor()])
+        else:
+            transform = Compose([ToTensor()])
         return transform(datapoint), torch.tensor(target)
 
     def __len__(self):
@@ -86,7 +90,7 @@ train_labels = labels[:train_size]
 validation_images = images[train_size:]
 validation_labels = labels[train_size:]
 
-train_dataset = SignDataset(train_images, train_labels)
+train_dataset = SignDataset(train_images, train_labels, transform = True)
 train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 val_dataset = SignDataset(validation_images, validation_labels)
