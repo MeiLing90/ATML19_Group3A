@@ -175,7 +175,7 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
         train_accuracies.append(train_accuracy)
         val_losses.append(val_loss)
         val_accuracies.append(val_accuracy)
-        print('Epoch {}/{}: train_loss: {:.4f}, train_accuracy: {:.4f}, val_loss: {:.4f}, val_accuracy: {:.4f}'.format(
+        print('Augmented Epoch {}/{}: train_loss: {:.4f}, train_accuracy: {:.4f}, val_loss: {:.4f}, val_accuracy: {:.4f}'.format(
             epoch + 1, n_epochs,
             train_loss,
             train_accuracy,
