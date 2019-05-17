@@ -1,15 +1,13 @@
 #%% Task 1: Loading data
 # import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import OneHotEncoder
 import numpy as np
 from PIL import Image
 import os
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizontalFlip, ColorJitter, ToPILImage
+from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizontalFlip, ColorJitter, Resize, RandomChoice
 import random
-import copy
 
 
 if os.path.exists('/var/tmp/jiyoung/data/'):
@@ -34,7 +32,8 @@ class SignDataset(Dataset):
         if self.transform:
             transform = Compose([RandomHorizontalFlip(),
                                  ColorJitter(brightness=0.5, contrast=0.5),
-                                 RandomCrop(32,32),
+                                 RandomChoice([Resize((34, 34)), Resize((32, 32)), Resize((39, 39)), Resize((32, 32))]),
+                                 RandomCrop(32, 32),
                                  ToTensor()])
         else:
             transform = Compose([ToTensor()])
@@ -61,7 +60,7 @@ def load_images(train_dir=data_folder+'train', limit=1000, target_size=[32,32]):
         path_folder = os.path.join(train_dir, folder)
         if os.path.isdir(path_folder):
             files = os.listdir(path_folder)
-            if live_env:
+            if live_env or limit == 0:
                 number_of_files = len(files)
             else:
                 number_of_files = min(int(limit / len(class_folders)), len(files))
@@ -104,12 +103,12 @@ test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 #%% Task 1_2: loading the different test dataset
 
-batch_size = 32
+# batch_size = 32
 
-test_images_2, test_char_labels_2 = load_images(data_folder+'test2')
-test_labels_2 = integer_encoder(test_char_labels_2)
-test_dataset_2 = SignDataset(test_images_2, test_labels_2)
-test_dataloader_2 = DataLoader(test_dataset_2, batch_size=batch_size, shuffle=True)
+# test_images_2, test_char_labels_2 = load_images(data_folder+'test2')
+# test_labels_2 = integer_encoder(test_char_labels_2)
+# test_dataset_2 = SignDataset(test_images_2, test_labels_2)
+# test_dataloader_2 = DataLoader(test_dataset_2, batch_size=batch_size, shuffle=True)
 
 
 #%% Task 2: Apply the model (implement train and test method)
@@ -176,7 +175,7 @@ def fit(model, optimizer, loss_fn, n_epochs, train_dataloader, val_dataloader):
         train_accuracies.append(train_accuracy)
         val_losses.append(val_loss)
         val_accuracies.append(val_accuracy)
-        print('Epoch {}/{}: train_loss: {:.4f}, train_accuracy: {:.4f}, val_loss: {:.4f}, val_accuracy: {:.4f}'.format(
+        print('Augmented Epoch {}/{}: train_loss: {:.4f}, train_accuracy: {:.4f}, val_loss: {:.4f}, val_accuracy: {:.4f}'.format(
             epoch + 1, n_epochs,
             train_loss,
             train_accuracy,
@@ -211,7 +210,7 @@ train_losses_result, train_accuracies_result, val_losses_result, val_accuracies_
 
 #plot_loss(train_losses_result, val_losses_result, n_epochs)
 
-#torch.save(model_dense.state_dict(),"model_full.pt")
+torch.save(model_dense.state_dict(), "model_full_augmented.pt")
 
 loss_fn = nn.CrossEntropyLoss()
 
@@ -219,17 +218,17 @@ test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss
 print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
 
 #%% task 4 testing on a different dataset
-from densenet import DenseNet
-import torch
-import torch.nn as nn
-
-model_full = DenseNet(num_classes=24)
-
-
-model_full.load_state_dict(torch.load("model_full.pt", map_location=torch.device('cpu')))
-model_full.eval()
-
-loss_fn = nn.CrossEntropyLoss()
-
-test_loss_result_2, test_accuracy_result_2 = eval(model_full, test_dataloader_2, loss_fn)
-print('Test loss: ' + str(test_loss_result_2) + ' and test accuracy: ' + str(test_accuracy_result_2))
+# from densenet import DenseNet
+# import torch
+# import torch.nn as nn
+#
+# model_full = DenseNet(num_classes=24)
+#
+#
+# model_full.load_state_dict(torch.load("model_full.pt", map_location=torch.device('cpu')))
+# model_full.eval()
+#
+# loss_fn = nn.CrossEntropyLoss()
+#
+# test_loss_result_2, test_accuracy_result_2 = eval(model_full, test_dataloader_2, loss_fn)
+# print('Test2 loss: ' + str(test_loss_result_2) + ' and test2 accuracy: ' + str(test_accuracy_result_2))
