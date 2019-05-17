@@ -11,6 +11,7 @@ from torchvision.transforms import ToTensor, Compose, RandomCrop, RandomHorizont
 import random
 import copy
 
+
 if os.path.exists('/var/tmp/jiyoung/data/'):
     live_env = True
     data_folder = '/var/tmp/jiyoung/data/'
@@ -74,7 +75,7 @@ def load_images(train_dir=data_folder+'train', limit=1000, target_size=[32,32]):
                     train_labels.append(folder)
     return train_images, train_labels
 
-
+#%% task 1_1 loading data part 2
 images, char_labels = load_images()
 labels = integer_encoder(char_labels)
 
@@ -100,6 +101,16 @@ test_images, test_char_labels = load_images(data_folder+'test')
 test_labels = integer_encoder(test_char_labels)
 test_dataset = SignDataset(test_images, test_labels)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+
+#%% Task 1_2: loading the different test dataset
+
+batch_size = 32
+
+test_images_2, test_char_labels_2 = load_images(data_folder+'test2')
+test_labels_2 = integer_encoder(test_char_labels_2)
+test_dataset_2 = SignDataset(test_images_2, test_labels_2)
+test_dataloader_2 = DataLoader(test_dataset_2, batch_size=batch_size, shuffle=True)
+
 
 #%% Task 2: Apply the model (implement train and test method)
 import torch
@@ -206,3 +217,19 @@ loss_fn = nn.CrossEntropyLoss()
 
 test_loss_result, test_accuracy_result = eval(model_dense, test_dataloader, loss_fn)
 print('Test loss: ' + str(test_loss_result) + ' and test accuracy: ' + str(test_accuracy_result))
+
+#%% task 4 testing on a different dataset
+from densenet import DenseNet
+import torch
+import torch.nn as nn
+
+model_full = DenseNet(num_classes=24)
+
+
+model_full.load_state_dict(torch.load("model_full.pt", map_location=torch.device('cpu')))
+model_full.eval()
+
+loss_fn = nn.CrossEntropyLoss()
+
+test_loss_result_2, test_accuracy_result_2 = eval(model_full, test_dataloader_2, loss_fn)
+print('Test loss: ' + str(test_loss_result_2) + ' and test accuracy: ' + str(test_accuracy_result_2))
