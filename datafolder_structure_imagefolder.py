@@ -14,7 +14,7 @@ original_path = os.path.join('.', 'data', 'dataset5')
 labels = ['r', 'u', 'i', 'n', 'g', 't', 's', 'a', 'f', 'o', 'h', 'm', 'c', 'd', 'v', 'q', 'x', 'e', 'b', 'k',
                   'l', 'y', 'p', 'w']
 
-if os.path.exists('dataset5'):
+if os.path.exists('data/dataset5'):
     os.rename(os.path.join(original_path, 'E'), os.path.join(original_path, 'test'))
     for person in ['A','B', 'C', 'D']:
         for label in labels:
