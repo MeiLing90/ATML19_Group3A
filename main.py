@@ -19,7 +19,7 @@ n_epoch = 10
 train_data_folder = 'data/train'
 test_data_folder = 'data/test'
 data_augmentation = True
-dataset_limit = 100
+dataset_limit = 1000
 
 
 class SignDataset(Dataset):
